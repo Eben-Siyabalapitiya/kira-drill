@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+  :root { color-scheme: light; }
+  body { margin: 0; font: 14px system-ui, sans-serif; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+<title>Kira Drill</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: single centred column. Studio cue-light states drive the palette:
+   standby amber during prep, live coral while answering, clear teal when time is up. */
+:root {
+  --bg: #f4f2ee;
+  --surface: #ffffff;
+  --surface-2: #ebe8e2;
+  --line: #d6d1c7;
+  --fg: #1c1b18;
+  --fg-dim: #6b665c;
+  --standby: #b07400;
+  --standby-soft: #fdf0d4;
+  --live: #c2371f;
+  --live-soft: #fbe4df;
+  --clear: #136b5c;
+  --clear-soft: #d8ece7;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15161a;
+    --surface: #1e2026;
+    --surface-2: #272a31;
+    --line: #373b44;
+    --fg: #ecebe8;
+    --fg-dim: #9a9790;
+    --standby: #f0b64a;
+    --standby-soft: #3a2e14;
+    --live: #f4705a;
+    --live-soft: #3d1f1a;
+    --clear: #58c7ae;
+    --clear-soft: #123029;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15161a;
+  --surface: #1e2026;
+  --surface-2: #272a31;
+  --line: #373b44;
+  --fg: #ecebe8;
+  --fg-dim: #9a9790;
+  --standby: #f0b64a;
+  --standby-soft: #3a2e14;
+  --live: #f4705a;
+  --live-soft: #3d1f1a;
+  --clear: #58c7ae;
+  --clear-soft: #123029;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap {
+  max-width: 680px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 56px;
+}
+
+/* --- masthead --- */
+.masthead { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+h1 { font-size: 1.45rem; font-weight: 700; letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+.sub { color: var(--fg-dim); font-size: 0.82rem; margin: 0 0 24px; max-width: 54ch; }
+.spec {
+  font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--fg-dim); white-space: nowrap;
+}
+
+/* --- panels --- */
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; }
+.panel + .panel { margin-top: 14px; }
+.panel-label {
+  font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--fg-dim); margin: 0 0 12px;
+}
+
+/* --- mode selector --- */
+.modes { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.mode {
+  text-align: left; cursor: pointer; font: inherit; color: inherit;
+  background: var(--surface-2); border: 1px solid var(--line);
+  border-radius: 8px; padding: 12px 13px; transition: border-color .12s, background .12s;
+}
+.mode:hover { border-color: var(--fg-dim); }
+.mode[aria-pressed="true"] { border-color: var(--live); background: var(--live-soft); }
+.mode-name { font-weight: 600; font-size: 0.92rem; display: block; }
+.mode-time { font-family: var(--font-mono); font-size: 0.74rem; color: var(--fg-dim); display: block; margin-top: 3px; }
+
+/* --- pool checkboxes --- */
+.pools { display: flex; flex-direction: column; gap: 9px; }
+.pool { display: flex; align-items: flex-start; gap: 9px; cursor: pointer; font-size: 0.88rem; }
+.pool input { margin: 3px 0 0; accent-color: var(--live); flex-shrink: 0; }
+.pool-count { font-family: var(--font-mono); font-size: 0.74rem; color: var(--fg-dim); }
+
+/* --- buttons --- */
+.btn {
+  font: inherit; font-weight: 600; cursor: pointer; border-radius: 8px;
+  border: 1px solid transparent; padding: 11px 20px; transition: opacity .12s;
+}
+.btn:hover { opacity: .88; }
+.btn:focus-visible { outline: 2px solid var(--live); outline-offset: 2px; }
+.btn-primary { background: var(--fg); color: var(--bg); width: 100%; font-size: 1rem; padding: 14px; }
+.btn-ghost { background: transparent; color: var(--fg-dim); border-color: var(--line); }
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn-row .btn { flex: 1 1 140px; }
+
+/* --- stage --- */
+.cue {
+  font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.16em;
+  text-transform: uppercase; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 11px; border-radius: 999px;
+}
+.cue::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.cue-prep { background: var(--standby-soft); color: var(--standby); }
+.cue-live { background: var(--live-soft); color: var(--live); }
+.cue-done { background: var(--clear-soft); color: var(--clear); }
+.cue-live::before { animation: blink 1s steps(1, end) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .cue-live::before { animation: none; } }
+
+.clock {
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  font-size: clamp(3.4rem, 17vw, 5.6rem); font-weight: 500;
+  line-height: 1; letter-spacing: -0.03em; margin: 14px 0 4px;
+}
+.clock-prep { color: var(--standby); }
+.clock-live { color: var(--fg); }
+.clock-warn { color: var(--live); }
+.clock-done { color: var(--clear); }
+.clock-note { font-size: 0.8rem; color: var(--fg-dim); margin: 0 0 18px; min-height: 1.4em; }
+
+.bar { height: 4px; background: var(--surface-2); border-radius: 999px; overflow: hidden; margin-bottom: 20px; }
+.bar > span { display: block; height: 100%; background: var(--live); width: 100%; }
+.bar.is-prep > span { background: var(--standby); }
+
+.question {
+  font-size: 1.22rem; line-height: 1.45; font-weight: 500;
+  margin: 0 0 16px; text-wrap: balance;
+}
+.meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+.tag {
+  font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.08em;
+  text-transform: uppercase; padding: 4px 9px; border-radius: 5px;
+  background: var(--surface-2); color: var(--fg-dim); border: 1px solid var(--line);
+}
+
+/* --- debrief --- */
+.debrief { border-top: 1px solid var(--line); margin-top: 20px; padding-top: 18px; }
+.debrief h3 { font-size: 0.78rem; font-family: var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg-dim); margin: 0 0 8px; font-weight: 600; }
+.debrief p { margin: 0 0 14px; font-size: 0.92rem; }
+.debrief ul { margin: 0; padding-left: 18px; font-size: 0.9rem; }
+.debrief li { margin-bottom: 5px; }
+
+/* --- tally --- */
+.tally { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; }
+.tally div { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.tally dt { font-family: var(--font-mono); font-size: 0.64rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-dim); margin: 0; }
+.tally dd { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 1.5rem; margin: 2px 0 0; font-weight: 500; }
+
+footer { margin-top: 26px; font-size: 0.78rem; color: var(--fg-dim); }
+footer p { margin: 0 0 7px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <h1>Kira Drill</h1>
+    <span class="spec">10s prep &middot; 2:00 answer &middot; one take</span>
+  </header>
+  <p class="sub">McMaster Engineering runs three video questions and one written. Ten seconds to think, two minutes to talk, no retakes. Practise under the real clock.</p>
+
+  <!-- SETUP -->
+  <section id="setup">
+    <div class="panel">
+      <p class="panel-label">Format</p>
+      <div class="modes" id="modes"></div>
+    </div>
+
+    <div class="panel">
+      <p class="panel-label">Question pool</p>
+      <div class="pools" id="pools"></div>
+    </div>
+
+    <div class="panel">
+      <p class="panel-label">This session</p>
+      <dl class="tally">
+        <div><dt>Answered</dt><dd id="t-count">0</dd></div>
+        <div><dt>Spoken</dt><dd id="t-time">0:00</dd></div>
+        <div><dt>Competencies</dt><dd id="t-comp">0/4</dd></div>
+      </dl>
+    </div>
+
+    <div class="panel">
+      <button class="btn btn-primary" id="start">Draw a question</button>
+    </div>
+  </section>
+
+  <!-- STAGE -->
+  <section id="stage" hidden>
+    <div class="panel">
+      <span class="cue cue-prep" id="cue">Prep</span>
+      <div class="clock clock-prep" id="clock">0:10</div>
+      <p class="clock-note" id="note">Think. Don't write a script.</p>
+      <div class="bar is-prep" id="bar"><span id="barfill"></span></div>
+
+      <p class="question" id="question"></p>
+      <div class="meta" id="meta"></div>
+
+      <div class="btn-row" id="controls">
+        <button class="btn btn-ghost" id="skip">Skip to answer</button>
+        <button class="btn btn-ghost" id="abort">Quit</button>
+      </div>
+
+      <div class="debrief" id="debrief" hidden>
+        <h3>What this question is testing</h3>
+        <p id="d-comp"></p>
+        <h3>Your story for it</h3>
+        <p id="d-story"></p>
+        <h3>Check yourself</h3>
+        <ul id="d-checks"></ul>
+        <div class="btn-row" style="margin-top:16px">
+          <button class="btn btn-primary" id="again" style="flex:1 1 160px">Next question</button>
+          <button class="btn btn-ghost" id="finish">Done</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p><strong>Timings</strong> are McMaster's published format: three video questions at 10 seconds prep and 2 minutes each, one written question at 7 minutes. Scored on engagement, collaboration, innovation and creativity, and resilience.</p>
+    <p><strong>Questions</strong> marked <em>McMaster</em> are the official practice questions from their site. The rest are commonly reported or standard behavioural prompts. The real assessment questions are never published, so treat all of these as types, not predictions.</p>
+    <p><strong>Deadlines:</strong> early submission Nov 26, 2026, 11:59pm ET. Final Jan 28, 2027.</p>
+  </footer>
+</div>
+
+<script>
+"use strict";
+
+const MODES = [
+  { id: "video", name: "Video question", time: "10s prep / 2:00", prep: 10, answer: 120 },
+  { id: "written", name: "Written question", time: "7:00 total", prep: 0, answer: 420 },
+  { id: "relaxed", name: "Warm up", time: "30s prep / 2:00", prep: 30, answer: 120 }
+];
+
+const STORY = {
+  engagement: "MNDX. The grant you wrote, the 17 volunteers, the 40+ devices. Or HACKNIGHTS if you've already used MNDX this session.",
+  collaboration: "Hack the Rex, two people and no committee. For the harder version (a time you let the team down), use the real one you've been avoiding.",
+  innovation: "The dead board you traced at night, or building a workshop from grants when you had no tools. Resource questions are yours to win.",
+  resilience: "Hack the North as a total beginner, or FRC from the Grade 9 kid who almost walked out to the driver who got the team to Worlds.",
+  general: "Pick one you haven't used yet. Don't spend MNDX twice in one sitting."
+};
+
+const COMPETENCY = {
+  engagement: "Engagement. They want to see you do things nobody made you do, and that it mattered to someone other than you.",
+  collaboration: "Collaboration. The score is on how you behave inside a group, especially when it goes wrong. Communication over heroics.",
+  innovation: "Innovation and creativity. They want evidence you test ideas rather than just have them, and that you learn from what fails.",
+  resilience: "Resilience. Not that you never fail, but what you did after. A story with no setback in it scores badly here.",
+  general: "Open. These test self-awareness and whether you can be specific under pressure."
+};
+
+const CHECKS = {
+  engagement: ["Did you say what YOU did, not what the group did?", "Was there a number or a concrete outcome?", "Did you say who it helped?"],
+  collaboration: ["Did you tell the team, or did you fix it in secret?", "Did you say how they reacted?", "Did you say 'I' at least as often as 'we'?"],
+  innovation: ["Did you describe the thing you actually tried?", "Did you say what didn't work first?", "Did you name what you'd do differently?"],
+  resilience: ["Was there a real setback, or did you dress up a win?", "Did you say how it felt, not just what you did?", "Did it end somewhere honest?"],
+  general: ["One story, not three.", "Specific beats impressive.", "Did you stop before the timer, or get cut off?"]
+};
+
+const QUESTIONS = [
+  // Engagement
+  { q: "Think of an activity, role, or responsibility outside the classroom. Describe what you learned and how it helped others.", c: "engagement", src: "McMaster" },
+  { q: "Tell us about an initiative you started outside the classroom. Why is it important to you and what impact has it had?", c: "engagement", src: "Reported" },
+  { q: "Describe how you have contributed to a community you belong to.", c: "engagement", src: "Standard" },
+  { q: "Tell us about something you do outside of school that you would keep doing even if nobody ever knew about it.", c: "engagement", src: "Standard" },
+  { q: "Describe a time you got someone else interested in something you care about.", c: "engagement", src: "Standard" },
+
+  // Collaboration
+  { q: "Describe a situation where a group you were a part of faced a challenge or setback. How did you help the group move forward?", c: "collaboration", src: "McMaster" },
+  { q: "Tell us about a time when a personal problem prevented you from doing your part of a group project. What did you do, and how did the rest of the group respond?", c: "collaboration", src: "Reported" },
+  { q: "Describe how you split up tasks on a particular day. What was your reaction and what was the outcome?", c: "collaboration", src: "Reported" },
+  { q: "Tell us about a time you disagreed with someone on your team. How did you handle it?", c: "collaboration", src: "Standard" },
+  { q: "Describe a time you had to depend on someone else to finish something that mattered.", c: "collaboration", src: "Standard" },
+  { q: "Tell us about a time you helped someone who was struggling to keep up.", c: "collaboration", src: "Standard" },
+
+  // Innovation & creativity
+  { q: "Tell us about a time when you tested an idea or solution to see if it would work. What was your approach and what did you learn?", c: "innovation", src: "McMaster" },
+  { q: "Describe the resources you used to carry out a task outside of school.", c: "innovation", src: "Reported" },
+  { q: "Tell us about a time you solved a problem with very limited resources.", c: "innovation", src: "Standard" },
+  { q: "Describe something you built or made that did not exist before. What was the hardest decision in making it?", c: "innovation", src: "Standard" },
+  { q: "Tell us about a time your first solution did not work. What did you try next?", c: "innovation", src: "Standard" },
+
+  // Resilience
+  { q: "Tell us about a situation where something did not go according to plan. How did you respond and what did you learn?", c: "resilience", src: "McMaster" },
+  { q: "Describe a time when you had a task that felt difficult or impossible. How did you react and what did you do?", c: "resilience", src: "Reported" },
+  { q: "Do you think it is important to go outside your comfort zone sometimes? Explain your answer in detail.", c: "resilience", src: "Reported" },
+  { q: "Describe what escaping your boundaries means to you, and how that is useful in the real world.", c: "resilience", src: "Reported" },
+  { q: "Tell us about a time you failed at something that mattered to you.", c: "resilience", src: "Standard" },
+  { q: "Describe a time you had to keep going after a setback with no clear end in sight.", c: "resilience", src: "Standard" },
+
+  // General
+  { q: "Describe the accomplishment you are most proud of.", c: "general", src: "Reported" },
+  { q: "What are some stereotypes about your culture, and what do you think about them?", c: "general", src: "Reported" },
+  { q: "What would someone who knows you well say is your greatest strength?", c: "general", src: "Standard" },
+  { q: "Why engineering, and when did you know?", c: "general", src: "Standard" },
+  { q: "Tell us about a person who changed the way you think.", c: "general", src: "Standard" }
+];
+
+const POOLS = [
+  { id: "engagement", label: "Engagement" },
+  { id: "collaboration", label: "Collaboration" },
+  { id: "innovation", label: "Innovation and creativity" },
+  { id: "resilience", label: "Resilience" },
+  { id: "general", label: "General and identity" }
+];
+
+const $ = (id) => document.getElementById(id);
+const fmt = (s) => Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+
+const state = {
+  mode: MODES[0],
+  pools: new Set(POOLS.map(p => p.id)),
+  used: new Set(),
+  count: 0,
+  spoken: 0,
+  hit: new Set(),
+  current: null,
+  timer: null,
+  phase: "idle"
+};
+
+/* ---------- persistence (per-viewer convenience only) ---------- */
+function save() {
+  try {
+    localStorage.setItem("kira-drill", JSON.stringify({
+      mode: state.mode.id, pools: [...state.pools]
+    }));
+  } catch (e) { /* private window, blocked storage: fine */ }
+}
+function load() {
+  try {
+    const raw = localStorage.getItem("kira-drill");
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    const m = MODES.find(x => x.id === d.mode);
+    if (m) state.mode = m;
+    if (Array.isArray(d.pools) && d.pools.length) state.pools = new Set(d.pools);
+  } catch (e) { /* fall through to defaults */ }
+}
+
+/* ---------- audio cue ---------- */
+let actx = null;
+function beep(freq, dur) {
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.connect(g); g.connect(actx.destination);
+    o.frequency.value = freq; o.type = "sine";
+    g.gain.setValueAtTime(0.0001, actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.18, actx.currentTime + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + dur);
+    o.start(); o.stop(actx.currentTime + dur + 0.02);
+  } catch (e) { /* audio unavailable: the visuals still carry it */ }
+}
+
+/* ---------- setup UI ---------- */
+function renderModes() {
+  $("modes").innerHTML = MODES.map(m =>
+    `<button class="mode" type="button" data-mode="${m.id}" aria-pressed="${m.id === state.mode.id}">
+       <span class="mode-name">${m.name}</span>
+       <span class="mode-time">${m.time}</span>
+     </button>`).join("");
+  $("modes").querySelectorAll(".mode").forEach(b => {
+    b.addEventListener("click", () => {
+      state.mode = MODES.find(m => m.id === b.dataset.mode);
+      renderModes(); save();
+    });
+  });
+}
+
+function renderPools() {
+  $("pools").innerHTML = POOLS.map(p => {
+    const n = QUESTIONS.filter(q => q.c === p.id).length;
+    return `<label class="pool">
+      <input type="checkbox" id="pool-${p.id}" data-pool="${p.id}" ${state.pools.has(p.id) ? "checked" : ""}>
+      <span>${p.label} <span class="pool-count">${n}</span></span>
+    </label>`;
+  }).join("");
+  $("pools").querySelectorAll("input").forEach(cb => {
+    cb.addEventListener("change", () => {
+      cb.checked ? state.pools.add(cb.dataset.pool) : state.pools.delete(cb.dataset.pool);
+      if (state.pools.size === 0) { state.pools.add(cb.dataset.pool); cb.checked = true; }
+      save();
+    });
+  });
+}
+
+function renderTally() {
+  $("t-count").textContent = state.count;
+  $("t-time").textContent = fmt(state.spoken);
+  $("t-comp").textContent = state.hit.size + "/4";
+}
+
+/* ---------- drawing a question ---------- */
+function pick() {
+  let pool = QUESTIONS.filter(q => state.pools.has(q.c));
+  const fresh = pool.filter(q => !state.used.has(q.q));
+  if (fresh.length) pool = fresh; else state.used.clear();
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function draw() {
+  state.current = pick();
+  state.used.add(state.current.q);
+
+  $("question").textContent = state.current.q;
+  $("meta").innerHTML =
+    `<span class="tag">${POOLS.find(p => p.id === state.current.c).label}</span>` +
+    `<span class="tag">${state.current.src}</span>` +
+    `<span class="tag">${state.mode.name}</span>`;
+
+  $("debrief").hidden = true;
+  $("controls").hidden = false;
+  $("setup").hidden = true;
+  $("stage").hidden = false;
+
+  state.mode.prep > 0 ? runPhase("prep", state.mode.prep) : runPhase("answer", state.mode.answer);
+}
+
+/* ---------- the clock ---------- */
+function runPhase(phase, seconds) {
+  clearInterval(state.timer);
+  state.phase = phase;
+  const total = seconds;
+  let left = seconds;
+
+  const prep = phase === "prep";
+  $("cue").textContent = prep ? "Prep" : (state.mode.id === "written" ? "Writing" : "Answering");
+  $("cue").className = "cue " + (prep ? "cue-prep" : "cue-live");
+  $("note").textContent = prep
+    ? "Think. Don't write a script."
+    : (state.mode.id === "written" ? "Read it again, then write. No word limit, be concise. Submit when done." : "Talk. One story. Submit when you land it, around 1:40.");
+  $("bar").className = "bar" + (prep ? " is-prep" : "");
+  $("skip").textContent = prep ? "Skip to answer" : "Submit";
+
+  const tick = () => {
+    $("clock").textContent = fmt(left);
+    $("clock").className = "clock " + (prep ? "clock-prep" : (left <= 20 ? "clock-warn" : "clock-live"));
+    $("barfill").style.width = (left / total * 100) + "%";
+    if (!prep && left === 20) beep(520, 0.08);
+    if (left <= 0) {
+      clearInterval(state.timer);
+      if (prep) { beep(760, 0.12); runPhase("answer", state.mode.answer); }
+      else { beep(300, 0.3); endPhase(total); }
+      return;
+    }
+    left--;
+  };
+  tick();
+  state.timer = setInterval(tick, 1000);
+}
+
+function endPhase(spokenSeconds) {
+  clearInterval(state.timer);
+  state.phase = "done";
+  state.count++;
+  state.spoken += spokenSeconds;
+  state.hit.add(state.current.c === "general" ? "general-x" : state.current.c);
+
+  $("cue").textContent = "Time";
+  $("cue").className = "cue cue-done";
+  $("clock").className = "clock clock-done";
+  $("note").textContent = spokenSeconds >= state.mode.answer
+    ? "You used the whole window. The real one auto-submits here, mid-sentence."
+    : "Submitted at " + fmt(spokenSeconds) + ". Kira lets you do exactly this.";
+  $("barfill").style.width = "0%";
+
+  $("d-comp").textContent = COMPETENCY[state.current.c];
+  $("d-story").textContent = STORY[state.current.c];
+  $("d-checks").innerHTML = CHECKS[state.current.c].map(c => `<li>${c}</li>`).join("");
+
+  $("controls").hidden = true;
+  $("debrief").hidden = false;
+  renderTally();
+}
+
+/* ---------- controls ---------- */
+$("start").addEventListener("click", () => { beep(660, 0.06); draw(); });
+$("again").addEventListener("click", draw);
+$("skip").addEventListener("click", () => {
+  if (state.phase === "prep") runPhase("answer", state.mode.answer);
+  else {
+    const elapsed = state.mode.answer - (parseInt($("clock").textContent.split(":")[0], 10) * 60 + parseInt($("clock").textContent.split(":")[1], 10));
+    endPhase(Math.max(0, elapsed));
+  }
+});
+function backToSetup() {
+  clearInterval(state.timer);
+  state.phase = "idle";
+  $("stage").hidden = true;
+  $("setup").hidden = false;
+  renderTally();
+}
+$("abort").addEventListener("click", backToSetup);
+$("finish").addEventListener("click", backToSetup);
+
+load();
+renderModes();
+renderPools();
+renderTally();
+</script>
+</body>
+</html>
