@@ -1,40 +1,43 @@
 # Kira Drill
 
-Timed practice for the Kira Talent video interview used by McMaster Engineering admissions.
+Timed practice for the Kira-style video interviews used by McMaster Engineering and University of Toronto Engineering admissions.
 
-Draws a random question, gives you 10 seconds to prepare and 2 minutes to answer, then stops. No retakes, same as the real assessment.
-
-## Why
-
-McMaster's supplementary application is three video questions and one written question, scored on engagement, collaboration, innovation and creativity, and resilience. The ten seconds of prep is the part that catches people out. You can't script an answer in it, only choose which story to tell, so the only useful practice is under the real clock.
+Pick a set, check your camera and mic, then answer under the clock. One take per question, with the option to watch your recordings back at the end.
 
 ## Features
 
-- 27 questions across the four scored competencies
-- Three modes: video (10s / 2:00), written (7:00), and a warm up with 30s prep
-- Submit early or let the clock run out, matching Kira's behaviour
-- Audio cues at the prep handoff, the 20 second warning, and time
-- Debrief after each answer: the competency being tested and what to check yourself on
-- Session tally of questions answered, time spoken, and competencies covered
+- **Interview sets:** Combined (2 video, 1 problem-solving, 1 written), McMaster (3 video, 1 written), U of T (2 video, 1 problem-solving), or a single question
+- **Camera and mic:** device check with live preview, camera and microphone pickers, and a level meter
+- **Interview screen:** question on the left, your camera on the right, a prep countdown that rolls straight into recording, and a submit button
+- **Adjustable timing:** prep time and talking time for video and problem-solving questions, plus writing time, each set separately. Presets for McMaster, U of T, and a combined in-between timing
+- **Playback:** answers are recorded in the browser and can be watched back or downloaded. Nothing is uploaded, and the recordings are gone when you close the tab
+- **Question bank:** 48 questions from McMaster's official practice set, questions past applicants have reported, and practice prompts in the same style
+
+## Default timings
+
+| Preset | Video prep / talk | Problem-solving prep / talk | Written |
+|---|---|---|---|
+| McMaster | 0:10 / 2:00 | not used | 7:00 |
+| U of T | 2:00 / 2:00 | 2:00 / 3:00 | not used |
+| Combined | 0:30 / 2:00 | 1:00 / 2:30 | 7:00 |
+
+McMaster's timings are from its [supplementary application page](https://www.eng.mcmaster.ca/supplementary-application/). U of T doesn't publish per-question times, so its preset uses the times applicants report.
 
 ## Running it
 
-Open `index.html` in a browser. No build step, no dependencies.
+Open `index.html` in a browser, or use the hosted version. The camera needs the page to be served over https or from localhost.
 
 ## Question sources
 
-Questions marked **McMaster** are the official practice questions published on the Faculty of Engineering site, one per competency. The rest are commonly reported or standard behavioural prompts. The real assessment questions are not published, so these are question types to prepare for rather than predictions.
+The real assessment questions are never published. Every question is tagged on the review screen:
 
-## Timings
+- **Official:** McMaster's published practice question for each competency
+- **Reported:** questions past applicants have reported, gathered from prep guides
+- **Practice:** prompts written in the same style by prep guides
 
-From McMaster's own supplementary application page:
+Treat them as question types to prepare for, not predictions.
 
-| | Prep | Response |
-|---|---|---|
-| Video question (x3) | 10 seconds | 2 minutes |
-| Written question (x1) | none | 7 minutes |
-
-Per [Kira's applicant help centre](https://support.kiratalent.com/article/137-type-of-questions-in-kira-async), you can submit before the timer ends on both question types. If you do nothing, the response submits automatically when time runs out.
+Independent practice tool. Not affiliated with Kira Talent, McMaster University or the University of Toronto.
 
 ## License
 
